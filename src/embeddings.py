@@ -3,6 +3,7 @@
 
 from functools import lru_cache
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from src.config import EMBED_MODEL_NAME
@@ -14,7 +15,6 @@ def _model() -> SentenceTransformer:
     return SentenceTransformer(EMBED_MODEL_NAME)
 
 
-def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Embed a batch of strings into vectors (one list[float] per input)."""
-    embeddings = _model().encode(texts, normalize_embeddings=True)
-    return embeddings.tolist()
+def embed_texts(texts: list[str]) -> np.ndarray:
+    """Embed a batch of strings into vectors; returns shape (n, dim) float32."""
+    return np.asarray(_model().encode(texts, normalize_embeddings=True))
