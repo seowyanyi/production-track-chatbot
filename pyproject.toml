@@ -19,6 +19,11 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.6",
 ]
+eval = [
+    "langchain-anthropic>=0.2,<0.4",
+    "langchain-community<0.4",
+    "ragas>=0.2,<0.3",
+]
 
 [tool.ruff]
 line-length = 100

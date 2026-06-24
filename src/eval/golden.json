@@ -1,0 +1,86 @@
+[
+  {
+    "question": "Who is the PT Head?",
+    "reference": "The PT Head is Jacelyn.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "Who is the Logistics Head?",
+    "reference": "The Logistics Head is Kang Lei.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "What does a Course Supervisor (CS) do?",
+    "reference": "The Course Supervisor leads the entire Production Team for a program.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "What is the entry-point role into the Production Track?",
+    "reference": "The Assistant is the entry point into the Production Track; they are the ground-level production crew.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "What is the core function of the Logistics department?",
+    "reference": "Logistics is responsible for the physical readiness of all production assets across programs.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "Which department owns the Make It Home event?",
+    "reference": "The Outreach & Events department fully owns the planning and execution of non-training PT events such as Make It Home.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "How many programs per year must a CS Body member step up as CS for?",
+    "reference": "Each CS Body member should step up as CS for at least two programs per year.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "Who is the Primary Integrity Holder for the Production Track?",
+    "reference": "The Head of PT Head Office is the Primary Integrity Holder for the Production Track.",
+    "expected_source": "Production Track (PT) - Summary",
+    "type": "answerable"
+  },
+  {
+    "question": "What is the definition of Impeccability?",
+    "reference": "Impeccability is doing things once and right — a commitment to excellence, thoroughness, and completeness in work done.",
+    "expected_source": "5IZA principles",
+    "type": "answerable"
+  },
+  {
+    "question": "What does the principle of Intention mean?",
+    "reference": "Intention is the will behind the thought; every manifestation begins with an intention.",
+    "expected_source": "5IZA principles",
+    "type": "answerable"
+  },
+  {
+    "question": "What time does the registration desk open for the next TCC program?",
+    "reference": null,
+    "expected_source": null,
+    "type": "unknown"
+  },
+  {
+    "question": "What is the budget allocated for Production Day this year?",
+    "reference": null,
+    "expected_source": null,
+    "type": "unknown"
+  },
+  {
+    "question": "What's the weather forecast in Singapore today?",
+    "reference": null,
+    "expected_source": null,
+    "type": "out_of_scope"
+  },
+  {
+    "question": "Can you write me a Python script to scrape a news website?",
+    "reference": null,
+    "expected_source": null,
+    "type": "out_of_scope"
+  }
+]
