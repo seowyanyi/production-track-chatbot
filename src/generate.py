@@ -86,16 +86,28 @@ def build_user_content(query: str, relevant_chunks: list[dict]) -> str:
     return f"Question: {query}"
 
 
-def stream_answer(query: str, chunks: list[dict]) -> Iterator[str]:
-    """Yield the answer token-by-token for the streaming UI."""
+def stream_answer(
+    query: str,
+    chunks: list[dict],
+    chat_history: list[dict] | None = None,
+) -> Iterator[str]:
+    """Yield the answer token-by-token for the streaming UI.
+
+    chat_history is a list of prior turns in Anthropic message format:
+        [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}, ...]
+    The current query (with injected context) is appended as the final user turn.
+    """
     relevant_chunks = select_relevant_chunks(chunks)
     user_content = build_user_content(query, relevant_chunks)
+
+    prior_turns: list[dict] = chat_history if chat_history else []
+    messages = [*prior_turns, {"role": "user", "content": user_content}]
 
     with _llm_client.messages.stream(
         model=ANTHROPIC_MODEL,
         system=SYSTEM_PROMPT,
         max_tokens=1024,
-        messages=[{"role": "user", "content": user_content}],
+        messages=messages,
     ) as stream:
         yield from stream.text_stream
 
