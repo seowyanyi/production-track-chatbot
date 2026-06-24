@@ -47,8 +47,9 @@ def chunk_document(doc: dict) -> list[dict]:
     for line in doc["text"].splitlines():
         if line.startswith("#"):
             if current_body.strip():
+                chunk_text = f"Document: {doc['doc_name']}\nSection: {current_heading}\n\n{current_body.strip()}"
                 chunks.append({
-                    "text": current_body.strip(),
+                    "text": chunk_text,
                     "source_url": doc["source_url"],
                     "doc_name": doc["doc_name"],
                     "section_heading": current_heading,
@@ -61,8 +62,9 @@ def chunk_document(doc: dict) -> list[dict]:
         current_body += line + "\n"
 
     if current_body.strip():
+        chunk_text = f"Document: {doc['doc_name']}\nSection: {current_heading}\n\n{current_body.strip()}"
         chunks.append({
-            "text": current_body.strip(),
+            "text": chunk_text,
             "source_url": doc["source_url"],
             "doc_name": doc["doc_name"],
             "section_heading": current_heading,
@@ -72,11 +74,10 @@ def chunk_document(doc: dict) -> list[dict]:
     return chunks
 
 def main() -> None:
-    """load -> chunk -> embed -> store. Orchestration is given; it calls your
-    chunk_document()."""
+    """load -> chunk -> embed -> store.
+    """
     vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    # Fresh start each run keeps Stage 1 simple — no dedup/upsert logic to reason
-    # about. Re-running ingest fully rebuilds the index.
+
     if COLLECTION_NAME in [col.name for col in vectordb_client.list_collections()]:
         vectordb_client.delete_collection(COLLECTION_NAME)
     collection = vectordb_client.create_collection(COLLECTION_NAME)
