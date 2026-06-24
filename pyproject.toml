@@ -1,0 +1,21 @@
+[project]
+name = "pt-rag-chatbot"
+version = "0.1.0"
+description = "RAG chatbot for the Live Your Mark Production Track (PT)"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.40",
+    "chromadb>=0.5",
+    "sentence-transformers>=3.0",
+    "langchain-text-splitters>=0.3",
+    "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+line-length = 100
