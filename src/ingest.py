@@ -3,7 +3,6 @@
 Run with:  uv run python -m src.ingest
 """
 
-import numpy as np
 import chromadb
 
 from src.config import CHROMA_DIR, COLLECTION_NAME, DOCS_DIR
@@ -75,12 +74,12 @@ def chunk_document(doc: dict) -> list[dict]:
 def main() -> None:
     """load -> chunk -> embed -> store. Orchestration is given; it calls your
     chunk_document()."""
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     # Fresh start each run keeps Stage 1 simple — no dedup/upsert logic to reason
     # about. Re-running ingest fully rebuilds the index.
-    if COLLECTION_NAME in [c.name for c in client.list_collections()]:
-        client.delete_collection(COLLECTION_NAME)
-    collection = client.create_collection(COLLECTION_NAME)
+    if COLLECTION_NAME in [c.name for c in vectordb_client.list_collections()]:
+        vectordb_client.delete_collection(COLLECTION_NAME)
+    collection = vectordb_client.create_collection(COLLECTION_NAME)
 
     documents = load_documents()
     chunks: list[dict] = []
@@ -92,7 +91,7 @@ def main() -> None:
         return
 
     texts = [c["text"] for c in chunks]
-    embeddings = np.array(embed_texts(texts), dtype=np.float32)
+    embeddings = embed_texts(texts)
     collection.add(
         ids=[str(i) for i in range(len(chunks))],
         embeddings=embeddings,
