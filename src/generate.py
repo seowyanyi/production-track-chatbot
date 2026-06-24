@@ -1,7 +1,12 @@
-"""Stage 1 — Generate: context assembly + prompt + LLM call + refusal guardrail.
+"""Generate: context assembly + prompt + LLM call + refusal guardrail.
+
+Two entry points share one prompt builder:
+  - stream_answer():   yields text deltas  -> Chainlit UI (Stage 2)
+  - generate_answer(): returns full string -> CLI + eval harness
 """
 
 import os
+from collections.abc import Iterator
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
@@ -61,29 +66,40 @@ If the question contains inappropriate, offensive, or harmful content,
 RELEVANCE_DISTANCE_THRESHOLD = 1.6
 
 
-def format_context(chunks: list[dict]) -> str:
-    relevant_chunks = [c for c in chunks if c["distance"] < RELEVANCE_DISTANCE_THRESHOLD]
+def select_relevant_chunks(chunks: list[dict]) -> list[dict]:
+    """Drop chunks too far from the query to be trustworthy context.
 
-    if not relevant_chunks:
-        return ""
+    Reused by the eval harness so it scores against the *same* contexts
+    the LLM actually saw.
+    """
+    return [c for c in chunks if c["distance"] < RELEVANCE_DISTANCE_THRESHOLD]
 
+
+def format_context(relevant_chunks: list[dict]) -> str:
     return "\n\n---\n\n".join(c["text"] for c in relevant_chunks)
 
 
-def generate_answer(query: str, chunks: list[dict]) -> str:
-    context = format_context(chunks)
-    print(f"Context length: {len(context)} characters")
-    print(f"Context:\n{context}\n\nQuestion: {query}\n\n")
-
+def build_user_content(query: str, relevant_chunks: list[dict]) -> str:
+    context = format_context(relevant_chunks)
     if context:
-        user_content = f"Context:\n{context}\n\nQuestion: {query}"
-    else:
-        user_content = f"Question: {query}"
+        return f"Context:\n{context}\n\nQuestion: {query}"
+    return f"Question: {query}"
 
-    response = _llm_client.messages.create(
+
+def stream_answer(query: str, chunks: list[dict]) -> Iterator[str]:
+    """Yield the answer token-by-token for the streaming UI."""
+    relevant_chunks = select_relevant_chunks(chunks)
+    user_content = build_user_content(query, relevant_chunks)
+
+    with _llm_client.messages.stream(
         model=ANTHROPIC_MODEL,
         system=SYSTEM_PROMPT,
         max_tokens=1024,
         messages=[{"role": "user", "content": user_content}],
-    )
-    return response.content[0].text
+    ) as stream:
+        yield from stream.text_stream
+
+
+def generate_answer(query: str, chunks: list[dict]) -> str:
+    """Full-string answer for the CLI and eval harness (joins the stream)."""
+    return "".join(stream_answer(query, chunks))
