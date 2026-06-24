@@ -31,3 +31,13 @@ def get_collection():
     """Open the collection ingest.py built. Given."""
     vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     return vectordb_client.get_collection(COLLECTION_NAME)
+
+
+if __name__ == "__main__":
+    query = "intention"
+    chunks = retrieve(query)
+    print(f"Retrieved {len(chunks)} chunks for query: {query}\n\n")
+    for c in chunks:
+        print(f"[{c['distance']:.3f}] {c['metadata']['doc_name']} / {c['metadata']['section_heading']}")
+        print(c['text'][:200])
+        print()
