@@ -9,21 +9,22 @@ def retrieve(query: str, k: int = TOP_K) -> list[dict]:
     collection = get_collection()
     query_embedding = embed_texts([query])
 
-    results = collection.query(
+    query_result = collection.query(
         query_embeddings=query_embedding,
         n_results=k,
         include=["documents", "metadatas", "distances"],
     )
 
-    # results["documents"] == [["chunk text 1", "chunk text 2", ...]]
-    #                            ^ outer list is "per query"; we unwrap [0]
-    docs      = results["documents"][0]
-    metadatas = results["metadatas"][0]
-    distances = results["distances"][0]
+    if query_result["documents"] is None or query_result["metadatas"] is None or query_result["distances"] is None:
+        raise ValueError("Chroma query returned None for requested include fields")
+
+    chunk_texts  = query_result["documents"][0]
+    metadatas    = query_result["metadatas"][0]
+    distances    = query_result["distances"][0]
 
     return [
-        {"text": d, "metadata": m, "distance": dist}
-        for d, m, dist in zip(docs, metadatas, distances)
+        {"text": chunk_text, "metadata": chunk_metadata, "distance": chunk_distance}
+        for chunk_text, chunk_metadata, chunk_distance in zip(chunk_texts, metadatas, distances)
     ]
 
 def get_collection():

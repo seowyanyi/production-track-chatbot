@@ -11,27 +11,27 @@ from src.embeddings import embed_texts
 def load_documents() -> list[dict]:
     """Read every .md file in docs/ and return one dict per document.
     """
-    docs = []
+    documents = []
     for path in sorted(DOCS_DIR.glob("*.md")):
-        raw = path.read_text(encoding="utf-8")
-        meta, body = _parse_front_matter(raw)
-        docs.append(
+        raw_text = path.read_text(encoding="utf-8")
+        meta, body = _parse_front_matter(raw_text)
+        documents.append(
             {
                 "text": body,
                 "doc_name": meta.get("doc_name", path.stem),
                 "source_url": meta.get("source_url", str(path)),
             }
         )
-    return docs
+    return documents
 
 
-def _parse_front_matter(raw: str) -> tuple[dict, str]:
+def _parse_front_matter(raw_text: str) -> tuple[dict, str]:
     """Split a leading '---\\n...\\n---' YAML-ish block from the body."""
-    if not raw.startswith("---"):
-        return {}, raw
-    _, fm, body = raw.split("---", 2)
+    if not raw_text.startswith("---"):
+        return {}, raw_text
+    _, front_matter_text, body = raw_text.split("---", 2)
     meta = {}
-    for line in fm.strip().splitlines():
+    for line in front_matter_text.strip().splitlines():
         if ":" in line:
             key, _, value = line.partition(":")
             meta[key.strip()] = value.strip()
@@ -77,7 +77,7 @@ def main() -> None:
     vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     # Fresh start each run keeps Stage 1 simple — no dedup/upsert logic to reason
     # about. Re-running ingest fully rebuilds the index.
-    if COLLECTION_NAME in [c.name for c in vectordb_client.list_collections()]:
+    if COLLECTION_NAME in [col.name for col in vectordb_client.list_collections()]:
         vectordb_client.delete_collection(COLLECTION_NAME)
     collection = vectordb_client.create_collection(COLLECTION_NAME)
 
@@ -90,20 +90,20 @@ def main() -> None:
         print("No chunks produced — did you implement chunk_document()?")
         return
 
-    texts = [c["text"] for c in chunks]
-    embeddings = embed_texts(texts)
+    chunk_texts = [chunk["text"] for chunk in chunks]
+    embeddings = embed_texts(chunk_texts)
     collection.add(
         ids=[str(i) for i in range(len(chunks))],
         embeddings=embeddings,
-        documents=texts,
+        documents=chunk_texts,
         metadatas=[
             {
-                "source_url": c["source_url"],
-                "doc_name": c["doc_name"],
-                "section_heading": c["section_heading"],
-                "chunk_index": c["chunk_index"],
+                "source_url": chunk["source_url"],
+                "doc_name": chunk["doc_name"],
+                "section_heading": chunk["section_heading"],
+                "chunk_index": chunk["chunk_index"],
             }
-            for c in chunks
+            for chunk in chunks
         ],
     )
     print(f"Ingested {len(chunks)} chunks from {len(documents)} document(s).")
