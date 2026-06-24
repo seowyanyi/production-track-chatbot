@@ -88,7 +88,7 @@ def main() -> None:
         chunks.extend(chunk_document(doc))
 
     if not chunks:
-        print("No chunks produced — did you implement chunk_document()?")
+        print("No chunks produced — check that docs/ contains Markdown files.")
         return
 
     chunk_texts = [chunk["text"] for chunk in chunks]

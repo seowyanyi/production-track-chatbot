@@ -28,7 +28,7 @@ def retrieve(query: str, k: int = TOP_K) -> list[dict]:
     ]
 
 def get_collection():
-    """Open the collection ingest.py built. Given."""
+    """Open the Chroma collection created by ingest.py."""
     vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     return vectordb_client.get_collection(COLLECTION_NAME)
 
