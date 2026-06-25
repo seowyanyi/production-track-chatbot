@@ -7,10 +7,7 @@ dependencies = [
     "anthropic>=0.40",
     "chromadb>=0.5",
     "sentence-transformers>=3.0",
-    "langchain-text-splitters>=0.3",
     "python-dotenv>=1.0",
-    "fastapi>=0.138.0",
-    "uvicorn>=0.49.0",
     "chainlit>=2.11.1",
 ]
 
@@ -18,6 +15,10 @@ dependencies = [
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",
+]
+tool = [
+    "fastapi>=0.138.0",
+    "uvicorn>=0.49.0",
 ]
 eval = [
     "langchain-anthropic>=0.2,<0.4",
