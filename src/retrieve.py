@@ -1,6 +1,3 @@
-"""Stage 1 — Retrieve: query -> top-k chunks.
-"""
-
 import chromadb
 from src.config import CHROMA_DIR, COLLECTION_NAME, TOP_K
 from src.embeddings import embed_texts
@@ -28,7 +25,6 @@ def retrieve(query: str, k: int = TOP_K) -> list[dict]:
     ]
 
 def get_collection():
-    """Open the Chroma collection created by ingest.py."""
     vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     return vectordb_client.get_collection(COLLECTION_NAME)
 

@@ -1,11 +1,5 @@
-"""Stage 1 CLI — the runnable end-to-end slice.
-
-    uv run python cli.py "Who sets up the registration desk?"
-
-Run order:
-    1. uv run python -m src.ingest      (build the index)
-    2. uv run python cli.py "..."       (ask a question)
-"""
+# uv run python -m src.ingest  (build the index first)
+# uv run python cli.py "Who sets up the registration desk?"
 
 import sys
 

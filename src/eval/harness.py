@@ -1,21 +1,5 @@
-"""Eval harness — score the RAG pipeline against the golden set with Ragas.
-
-    uv run python -m src.eval.harness
-
-What it measures:
-  - Ragas metrics (answerable questions only):
-      faithfulness        : is the answer grounded in the retrieved context?
-      answer_relevancy    : does the answer address the question?
-      context_precision   : are the retrieved chunks relevant (ranked well)?
-      context_recall      : did retrieval surface what the reference answer needs?
-  - refusal_accuracy (all questions): did the bot refuse exactly when it should?
-      Out-of-scope and unknown questions *should* refuse; answerable ones
-      should NOT. This guards the Stage 1 grounding/refusal behaviour.
-
-The Ragas judge is Claude (via langchain-anthropic); the embeddings reuse the
-same local all-MiniLM-L6-v2 model the rest of the pipeline uses, so scores
-reflect the real retrieval space.
-"""
+# uv run python -m src.eval.harness
+# The Ragas judge uses the same local embedding model as the retriever so scores reflect the real retrieval space.
 
 import json
 import os
@@ -61,12 +45,6 @@ RAGAS_METRICS = [faithfulness, answer_relevancy, context_precision, context_reca
 
 
 class LocalEmbeddings(Embeddings):
-    """LangChain Embeddings adapter over the project's local embed_texts().
-
-    Lets Ragas score in the same vector space the retriever uses, with no
-    extra model download or API calls.
-    """
-
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return [vector.tolist() for vector in embed_texts(texts)]
 
@@ -84,11 +62,6 @@ def load_golden() -> list[dict]:
 
 
 def run_pipeline(golden_items: list[dict]) -> list[dict]:
-    """Run retrieve + generate for every golden question once.
-
-    Returns one record per question carrying everything both the Ragas
-    metrics and the refusal check need downstream.
-    """
     records: list[dict] = []
     for item in golden_items:
         question = item["question"]
@@ -120,11 +93,7 @@ def score_refusal_accuracy(records: list[dict]) -> float:
 
 
 def score_ragas(records: list[dict]) -> dict[str, float]:
-    """Run the Ragas metrics over the answerable questions only.
-
-    Refusal questions have no reference answer and (correctly) no grounded
-    response, so faithfulness/recall are meaningless for them.
-    """
+    # Refusal questions have no reference answer, so faithfulness/recall are meaningless for them.
     answerable_records = [r for r in records if r["type"] == "answerable"]
     if not answerable_records:
         return {}

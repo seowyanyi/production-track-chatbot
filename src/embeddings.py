@@ -1,6 +1,3 @@
-"""Embedding helper, shared by ingest (index side) and retrieve (query side).
-"""
-
 from functools import lru_cache
 
 import numpy as np
@@ -16,5 +13,4 @@ def _embed_model() -> SentenceTransformer:
 
 
 def embed_texts(texts: list[str]) -> np.ndarray:
-    """Embed a batch of strings into vectors; returns shape (n, dim) float32."""
     return np.asarray(_embed_model().encode(texts, normalize_embeddings=True))

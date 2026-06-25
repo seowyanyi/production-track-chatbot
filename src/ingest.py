@@ -1,7 +1,4 @@
-"""Stage 1 — Ingest: load -> chunk -> embed -> store.
-
-Run with:  uv run python -m src.ingest
-"""
+# uv run python -m src.ingest
 
 import chromadb
 
@@ -9,8 +6,6 @@ from src.config import CHROMA_DIR, COLLECTION_NAME, DOCS_DIR
 from src.embeddings import embed_texts
 
 def load_documents() -> list[dict]:
-    """Read every .md file in docs/ and return one dict per document.
-    """
     documents = []
     for path in sorted(DOCS_DIR.glob("*.md")):
         raw_text = path.read_text(encoding="utf-8")
@@ -26,7 +21,6 @@ def load_documents() -> list[dict]:
 
 
 def _parse_front_matter(raw_text: str) -> tuple[dict, str]:
-    """Split a leading '---\\n...\\n---' YAML-ish block from the body."""
     if not raw_text.startswith("---"):
         return {}, raw_text
     _, front_matter_text, body = raw_text.split("---", 2)
@@ -74,8 +68,6 @@ def chunk_document(doc: dict) -> list[dict]:
     return chunks
 
 def main() -> None:
-    """load -> chunk -> embed -> store.
-    """
     vectordb_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
 
     if COLLECTION_NAME in [col.name for col in vectordb_client.list_collections()]:

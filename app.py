@@ -1,11 +1,4 @@
-"""Stage 2 — Chainlit chat UI over the Stage 1 RAG pipeline.
-
-Run:
-    uv run chainlit run app.py -w     # -w = auto-reload on save
-
-The pipeline is unchanged: retrieve() -> stream_answer().
-This file is ONLY the UI layer.
-"""
+# uv run chainlit run app.py -w
 
 import chainlit
 

@@ -1,10 +1,3 @@
-"""Generate: context assembly + prompt + LLM call + refusal guardrail.
-
-Two entry points share one prompt builder:
-  - stream_answer():   yields text deltas  -> Chainlit UI (Stage 2)
-  - generate_answer(): returns full string -> CLI + eval harness
-"""
-
 import os
 from collections.abc import Iterator
 
@@ -67,11 +60,6 @@ RELEVANCE_DISTANCE_THRESHOLD = 1.6
 
 
 def select_relevant_chunks(chunks: list[dict]) -> list[dict]:
-    """Drop chunks too far from the query to be trustworthy context.
-
-    Reused by the eval harness so it scores against the *same* contexts
-    the LLM actually saw.
-    """
     return [c for c in chunks if c["distance"] < RELEVANCE_DISTANCE_THRESHOLD]
 
 
@@ -89,14 +77,8 @@ def build_user_content(query: str, relevant_chunks: list[dict]) -> str:
 def stream_answer(
     query: str,
     chunks: list[dict],
-    chat_history: list[dict] | None = None,
+    chat_history: list[dict] | None = None,  # Anthropic message format: [{"role": ..., "content": ...}, ...]
 ) -> Iterator[str]:
-    """Yield the answer token-by-token for the streaming UI.
-
-    chat_history is a list of prior turns in Anthropic message format:
-        [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}, ...]
-    The current query (with injected context) is appended as the final user turn.
-    """
     relevant_chunks = select_relevant_chunks(chunks)
     user_content = build_user_content(query, relevant_chunks)
 
@@ -113,5 +95,4 @@ def stream_answer(
 
 
 def generate_answer(query: str, chunks: list[dict]) -> str:
-    """Full-string answer for the CLI and eval harness (joins the stream)."""
     return "".join(stream_answer(query, chunks))
